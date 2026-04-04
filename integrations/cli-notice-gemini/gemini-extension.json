@@ -1,0 +1,5 @@
+{
+  "name": "cli-notice-gemini",
+  "version": "0.1.0",
+  "description": "Native Gemini CLI voice reminders for approval prompts and task completion on macOS."
+}

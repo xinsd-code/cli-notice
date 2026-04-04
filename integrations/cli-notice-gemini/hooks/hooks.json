@@ -1,0 +1,32 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "ToolPermission",
+        "hooks": [
+          {
+            "name": "cli-notice-gemini-notification",
+            "type": "command",
+            "command": "python3 \"${extensionPath}${/}hooks${/}voice_notice.py\"",
+            "timeout": 5000,
+            "description": "Voice reminder when Gemini asks for a manual tool confirmation."
+          }
+        ]
+      }
+    ],
+    "AfterAgent": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "cli-notice-gemini-after-agent",
+            "type": "command",
+            "command": "python3 \"${extensionPath}${/}hooks${/}voice_notice.py\"",
+            "timeout": 5000,
+            "description": "Voice reminder when Gemini completes a task."
+          }
+        ]
+      }
+    ]
+  }
+}

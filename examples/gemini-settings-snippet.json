@@ -1,0 +1,9 @@
+{
+  "general": {
+    "enableNotifications": true
+  },
+  "hooksConfig": {
+    "enabled": true,
+    "notifications": true
+  }
+}

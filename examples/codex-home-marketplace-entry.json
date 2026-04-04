@@ -1,0 +1,20 @@
+{
+  "name": "cli-notice-home",
+  "interface": {
+    "displayName": "CLI Notice Home"
+  },
+  "plugins": [
+    {
+      "name": "cli-notice-codex",
+      "source": {
+        "source": "local",
+        "path": "./plugins/cli-notice-codex"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

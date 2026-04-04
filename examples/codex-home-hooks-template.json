@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$HOME/plugins/cli-notice-codex/scripts/voice_notice.py\"",
+            "statusMessage": "CLI Notice approval reminder",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$HOME/plugins/cli-notice-codex/scripts/voice_notice.py\"",
+            "statusMessage": "CLI Notice completion reminder",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

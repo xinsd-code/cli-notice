@@ -1,0 +1,53 @@
+{
+  "name": "@xinsd/cli-notice",
+  "version": "0.1.1",
+  "description": "npx installer for CLI Notice Codex and Gemini voice reminder integrations.",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "gemini",
+    "cli",
+    "installer",
+    "voice",
+    "hooks",
+    "macos"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xinsd/cli-notice.git"
+  },
+  "homepage": "https://github.com/xinsd/cli-notice#readme",
+  "bugs": {
+    "url": "https://github.com/xinsd/cli-notice/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "cli-notice": "bin/cli-notice-install.js"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "README.md",
+    "bin/cli-notice-install.js",
+    "scripts/install_real_env.py",
+    "scripts/install_codex_plugin.py",
+    "scripts/install_gemini_extension.py",
+    "examples/codex-config-snippet.toml",
+    "examples/codex-home-hooks-template.json",
+    "examples/codex-home-marketplace-entry.json",
+    "examples/gemini-settings-snippet.json",
+    "integrations/cli-notice-codex/.codex-plugin/plugin.json",
+    "integrations/cli-notice-codex/assets/cli-notice.svg",
+    "integrations/cli-notice-codex/README.md",
+    "integrations/cli-notice-codex/scripts/voice_notice.py",
+    "integrations/cli-notice-codex/skills/setup-cli-notice/SKILL.md",
+    "integrations/cli-notice-gemini/gemini-extension.json",
+    "integrations/cli-notice-gemini/README.md",
+    "integrations/cli-notice-gemini/hooks/hooks.json",
+    "integrations/cli-notice-gemini/hooks/voice_notice.py"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

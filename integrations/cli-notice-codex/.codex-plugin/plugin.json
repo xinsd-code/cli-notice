@@ -1,0 +1,42 @@
+{
+  "name": "cli-notice-codex",
+  "version": "0.1.0",
+  "description": "Native Codex voice reminders for approval moments and task completion on macOS.",
+  "author": {
+    "name": "OpenAI Codex + xinsd",
+    "url": "https://github.com/openai/codex"
+  },
+  "homepage": "https://github.com/openai/codex",
+  "repository": "https://github.com/openai/codex",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "hooks",
+    "voice",
+    "notification",
+    "speech",
+    "macos"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "CLI Notice",
+    "shortDescription": "Speak approval and completion reminders in Codex",
+    "longDescription": "Adds native macOS voice reminders to Codex CLI with best-effort approval alerts and task completion announcements through the Codex hooks system.",
+    "developerName": "xinsd",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/openai/codex",
+    "privacyPolicyURL": "https://openai.com/policies/privacy-policy/",
+    "termsOfServiceURL": "https://openai.com/policies/terms-of-use/",
+    "defaultPrompt": [
+      "Explain how to enable CLI Notice voice reminders in Codex"
+    ],
+    "brandColor": "#0F766E",
+    "composerIcon": "./assets/cli-notice.svg",
+    "logo": "./assets/cli-notice.svg",
+    "screenshots": []
+  }
+}
