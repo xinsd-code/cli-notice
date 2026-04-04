@@ -14,11 +14,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xinsd/cli-notice.git"
+    "url": "git+https://github.com/duxs-code/cli-notice.git"
   },
-  "homepage": "https://github.com/xinsd/cli-notice#readme",
+  "homepage": "https://github.com/duxs-code/cli-notice#readme",
   "bugs": {
-    "url": "https://github.com/xinsd/cli-notice/issues"
+    "url": "https://github.com/duxs-code/cli-notice/issues"
   },
   "publishConfig": {
     "access": "public"
