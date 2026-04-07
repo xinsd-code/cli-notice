@@ -46,6 +46,7 @@ RISK_PATTERNS = {
     "destructive": re.compile(r"\b(rm|mv|chmod|chown|ln|truncate)\b"),
     "write": re.compile(r"\b(cp|mkdir|rmdir|touch|tee)\b|(^|[^>])>>?|sed\s+-i\b|perl\s+-pi\b"),
     "network": re.compile(r"\b(curl|wget|ssh|scp|rsync)\b"),
+    "ui": re.compile(r"\b(open|osascript|launchctl|systemctl)\b"),
     "packages": re.compile(
         r"\b("
         r"brew\s+(install|upgrade)|"
@@ -62,6 +63,7 @@ REDIRECT_TARGET_RE = re.compile(r"(?:^|[;&|]\s*|\s)(?:>>|>)\s*([^\s;&|]+)")
 WRITE_PATH_COMMANDS = {"chmod", "chown", "cp", "ln", "mkdir", "mv", "perl", "rm", "rmdir", "sed", "tee", "touch", "truncate"}
 LAST_PATH_ONLY_COMMANDS = {"cp", "ln", "mv", "tee"}
 SKIP_PATH_TOKENS = {"-", "--", "/dev/null"}
+SIMPLE_VARIABLE_RE = re.compile(r"\$(\w+)|\$\{([^}]+)\}")
 
 
 def load_payload() -> dict[str, Any]:
@@ -294,14 +296,46 @@ def normalize_candidate_path(token: str, cwd: str) -> Path | None:
         return None
 
 
+def parse_assignment(token: str) -> tuple[str, str] | None:
+    if "=" not in token or not ASSIGNMENT_RE.match(token):
+        return None
+    name, raw_value = token.split("=", 1)
+    value = raw_value.strip("\"'")
+    if not value:
+        return None
+    if any(marker in value for marker in ("$(", "`", "*", "?", "[", "]")):
+        return None
+    return name, value
+
+
+def collect_simple_assignments(tokens: list[str]) -> dict[str, str]:
+    assignments: dict[str, str] = {}
+    for token in tokens:
+        parsed = parse_assignment(token)
+        if parsed is None:
+            continue
+        name, value = parsed
+        assignments[name] = value
+    return assignments
+
+
+def expand_shell_variables(token: str, assignments: dict[str, str]) -> str:
+    def replace(match: re.Match[str]) -> str:
+        name = match.group(1) or match.group(2) or ""
+        return assignments.get(name, match.group(0))
+
+    return SIMPLE_VARIABLE_RE.sub(replace, token)
+
+
 def candidate_paths(command: str, cwd: str) -> list[Path]:
     tokens = shell_tokens(command)
     if not tokens:
         return []
 
+    assignments = collect_simple_assignments(tokens)
     candidates: list[Path] = []
     for raw in REDIRECT_TARGET_RE.findall(command):
-        path = normalize_candidate_path(raw, cwd)
+        path = normalize_candidate_path(expand_shell_variables(raw, assignments), cwd)
         if path is not None:
             candidates.append(path)
 
@@ -311,12 +345,12 @@ def candidate_paths(command: str, cwd: str) -> list[Path]:
             continue
         non_option_tokens = [token for token in segment[start + 1 :] if looks_like_path_token(token)]
         if primary in LAST_PATH_ONLY_COMMANDS and non_option_tokens:
-            target = normalize_candidate_path(non_option_tokens[-1], cwd)
+            target = normalize_candidate_path(expand_shell_variables(non_option_tokens[-1], assignments), cwd)
             if target is not None:
                 candidates.append(target)
         else:
             for token in non_option_tokens:
-                path = normalize_candidate_path(token, cwd)
+                path = normalize_candidate_path(expand_shell_variables(token, assignments), cwd)
                 if path is not None:
                     candidates.append(path)
 
@@ -370,7 +404,7 @@ def likely_requires_manual_approval(payload: dict[str, Any], command: str, bucke
     if approval_policy in {"never", "bypasspermissions"}:
         return False
 
-    if bucket in {"network", "packages"}:
+    if bucket in {"network", "packages", "ui"}:
         return True
 
     cwd = str(payload.get("cwd") or "")

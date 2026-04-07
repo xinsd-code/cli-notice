@@ -1,0 +1,5 @@
+{
+  "name": "cli-notice-qwen",
+  "version": "1.0.0",
+  "hooks": "hooks/hooks.json"
+}

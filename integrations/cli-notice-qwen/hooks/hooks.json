@@ -1,0 +1,45 @@
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "cli-notice-qwen-permission-request",
+            "type": "command",
+            "command": "/usr/bin/python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/voice_notice.py\"",
+            "timeout": 5000,
+            "description": "Voice reminder when Qwen Code is about to show a permission dialog."
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "name": "cli-notice-qwen-notification",
+            "type": "command",
+            "command": "/usr/bin/python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/voice_notice.py\"",
+            "timeout": 5000,
+            "description": "Fallback voice reminder when Qwen Code emits a permission notification."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "name": "cli-notice-qwen-stop",
+            "type": "command",
+            "command": "/usr/bin/python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/voice_notice.py\"",
+            "timeout": 5000,
+            "description": "Voice reminder when Qwen Code completes a response."
+          }
+        ]
+      }
+    ]
+  }
+}

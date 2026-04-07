@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, "..");
 const targets = {
   codex: path.join(root, "scripts", "install_codex_plugin.py"),
   gemini: path.join(root, "scripts", "install_gemini_extension.py"),
+  qwen: path.join(root, "scripts", "install_qwen_extension.py"),
   all: path.join(root, "scripts", "install_real_env.py"),
 };
 
@@ -17,9 +18,10 @@ function printUsage() {
   npx @xinsd/cli-notice all
   npx @xinsd/cli-notice codex
   npx @xinsd/cli-notice gemini
+  npx @xinsd/cli-notice qwen
 
 Notes:
-  - "all" installs both Codex and Gemini integrations
+  - "all" installs Codex, Gemini, and Qwen integrations
   - each installer creates a backup and rollback script under backups/<timestamp>/`);
 }
 

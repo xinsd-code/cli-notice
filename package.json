@@ -1,11 +1,12 @@
 {
   "name": "@xinsd/cli-notice",
-  "version": "0.1.1",
-  "description": "npx installer for CLI Notice Codex and Gemini voice reminder integrations.",
+  "version": "0.1.3",
+  "description": "npx installer for CLI Notice Codex, Gemini, and Qwen voice reminder integrations.",
   "license": "MIT",
   "keywords": [
     "codex",
     "gemini",
+    "qwen",
     "cli",
     "installer",
     "voice",
@@ -33,6 +34,7 @@
     "scripts/install_real_env.py",
     "scripts/install_codex_plugin.py",
     "scripts/install_gemini_extension.py",
+    "scripts/install_qwen_extension.py",
     "examples/codex-config-snippet.toml",
     "examples/codex-home-hooks-template.json",
     "examples/codex-home-marketplace-entry.json",
@@ -45,7 +47,11 @@
     "integrations/cli-notice-gemini/gemini-extension.json",
     "integrations/cli-notice-gemini/README.md",
     "integrations/cli-notice-gemini/hooks/hooks.json",
-    "integrations/cli-notice-gemini/hooks/voice_notice.py"
+    "integrations/cli-notice-gemini/hooks/voice_notice.py",
+    "integrations/cli-notice-qwen/qwen-extension.json",
+    "integrations/cli-notice-qwen/README.md",
+    "integrations/cli-notice-qwen/hooks/hooks.json",
+    "integrations/cli-notice-qwen/hooks/voice_notice.py"
   ],
   "engines": {
     "node": ">=18"

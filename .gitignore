@@ -5,3 +5,4 @@ __pycache__/
 *.tgz
 node_modules/
 .npm/
+backups/

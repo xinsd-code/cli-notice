@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install CLI Notice into the user's real Codex and Gemini environments.
+"""Install CLI Notice into the user's real Codex, Gemini, and Qwen environments.
 
 Creates a timestamped backup plus a rollback script in the workspace before
 modifying any home-directory files.
@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import os
 import shutil
 from pathlib import Path
 
@@ -17,11 +16,14 @@ from pathlib import Path
 WORKSPACE = Path(__file__).resolve().parents[1]
 PLUGIN_SRC = WORKSPACE / "integrations" / "cli-notice-codex"
 EXTENSION_SRC = WORKSPACE / "integrations" / "cli-notice-gemini"
+QWEN_EXTENSION_SRC = WORKSPACE / "integrations" / "cli-notice-qwen"
 HOME = Path.home()
 CODEX_CONFIG = HOME / ".codex" / "config.toml"
 CODEX_HOOKS = HOME / ".codex" / "hooks.json"
 GEMINI_SETTINGS = HOME / ".gemini" / "settings.json"
 GEMINI_EXTENSION_DIR = HOME / ".gemini" / "extensions" / "cli-notice-gemini"
+QWEN_SETTINGS = HOME / ".qwen" / "settings.json"
+QWEN_EXTENSION_DIR = HOME / ".qwen" / "extensions" / "cli-notice-qwen"
 HOME_PLUGIN_DIR = HOME / "plugins" / "cli-notice-codex"
 HOME_MARKETPLACE = HOME / ".agents" / "plugins" / "marketplace.json"
 HOME_PLUGIN_CACHE_DIR = HOME / ".codex" / "plugins" / "cache" / "local-home-marketplace" / "cli-notice-codex"
@@ -105,7 +107,6 @@ def write_codex_hooks(path: Path) -> None:
                         {
                             "type": "command",
                             "command": f'/usr/bin/python3 "{script_path}"',
-                            "statusMessage": "CLI Notice approval reminder",
                             "timeout": 5,
                         }
                     ],
@@ -117,7 +118,6 @@ def write_codex_hooks(path: Path) -> None:
                         {
                             "type": "command",
                             "command": f'/usr/bin/python3 "{script_path}"',
-                            "statusMessage": "CLI Notice completion reminder",
                             "timeout": 5,
                         }
                     ],
@@ -135,6 +135,13 @@ def update_gemini_settings(path: Path) -> None:
     hooks_config = data.setdefault("hooksConfig", {})
     hooks_config["enabled"] = True
     hooks_config["notifications"] = True
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def update_qwen_settings(path: Path) -> None:
+    data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    if data.get("disableAllHooks") is True:
+        data["disableAllHooks"] = False
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
@@ -214,10 +221,12 @@ def write_rollback_script(backup_dir: Path, metadata: dict[str, str]) -> Path:
     restore_file(str(CODEX_CONFIG), metadata.get("codex_config_backup"))
     restore_file(str(CODEX_HOOKS), metadata.get("codex_hooks_backup"))
     restore_file(str(GEMINI_SETTINGS), metadata.get("gemini_settings_backup"))
+    restore_file(str(QWEN_SETTINGS), metadata.get("qwen_settings_backup"))
     restore_file(str(HOME_MARKETPLACE), metadata.get("marketplace_backup"))
     restore_dir(str(HOME_PLUGIN_DIR), metadata.get("plugin_dir_backup"))
     restore_dir(str(HOME_PLUGIN_CACHE_DIR), metadata.get("plugin_cache_backup"))
     restore_dir(str(GEMINI_EXTENSION_DIR), metadata.get("gemini_extension_backup"))
+    restore_dir(str(QWEN_EXTENSION_DIR), metadata.get("qwen_extension_backup"))
 
     lines.append('echo "Rollback complete."')
     script.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -230,6 +239,8 @@ def main() -> int:
         raise SystemExit(f"Missing plugin source: {PLUGIN_SRC}")
     if not EXTENSION_SRC.exists():
         raise SystemExit(f"Missing extension source: {EXTENSION_SRC}")
+    if not QWEN_EXTENSION_SRC.exists():
+        raise SystemExit(f"Missing extension source: {QWEN_EXTENSION_SRC}")
 
     backup_dir = backup_root()
     metadata: dict[str, str] = {}
@@ -243,6 +254,9 @@ def main() -> int:
     backup = backup_file(GEMINI_SETTINGS, backup_dir, "home/.gemini/settings.json")
     if backup:
         metadata["gemini_settings_backup"] = backup.relative_to(backup_dir).as_posix()
+    backup = backup_file(QWEN_SETTINGS, backup_dir, "home/.qwen/settings.json")
+    if backup:
+        metadata["qwen_settings_backup"] = backup.relative_to(backup_dir).as_posix()
     backup = backup_file(HOME_MARKETPLACE, backup_dir, "home/.agents/plugins/marketplace.json")
     if backup:
         metadata["marketplace_backup"] = backup.relative_to(backup_dir).as_posix()
@@ -259,13 +273,18 @@ def main() -> int:
     backup = backup_dir_copy(GEMINI_EXTENSION_DIR, backup_dir, "home/.gemini/extensions/cli-notice-gemini")
     if backup:
         metadata["gemini_extension_backup"] = backup.relative_to(backup_dir).as_posix()
+    backup = backup_dir_copy(QWEN_EXTENSION_DIR, backup_dir, "home/.qwen/extensions/cli-notice-qwen")
+    if backup:
+        metadata["qwen_extension_backup"] = backup.relative_to(backup_dir).as_posix()
 
     ensure_parent(CODEX_CONFIG)
     ensure_parent(CODEX_HOOKS)
     ensure_parent(GEMINI_SETTINGS)
+    ensure_parent(QWEN_SETTINGS)
     ensure_parent(HOME_MARKETPLACE)
     HOME_PLUGIN_DIR.parent.mkdir(parents=True, exist_ok=True)
     GEMINI_EXTENSION_DIR.parent.mkdir(parents=True, exist_ok=True)
+    QWEN_EXTENSION_DIR.parent.mkdir(parents=True, exist_ok=True)
 
     shutil.rmtree(HOME_PLUGIN_DIR, ignore_errors=True)
     shutil.copytree(PLUGIN_SRC, HOME_PLUGIN_DIR)
@@ -275,10 +294,17 @@ def main() -> int:
         else:
             shutil.rmtree(GEMINI_EXTENSION_DIR)
     GEMINI_EXTENSION_DIR.symlink_to(EXTENSION_SRC)
+    if QWEN_EXTENSION_DIR.exists() or QWEN_EXTENSION_DIR.is_symlink():
+        if QWEN_EXTENSION_DIR.is_symlink() or QWEN_EXTENSION_DIR.is_file():
+            QWEN_EXTENSION_DIR.unlink()
+        else:
+            shutil.rmtree(QWEN_EXTENSION_DIR)
+    QWEN_EXTENSION_DIR.symlink_to(QWEN_EXTENSION_SRC)
 
     update_codex_config(CODEX_CONFIG)
     write_codex_hooks(CODEX_HOOKS)
     update_gemini_settings(GEMINI_SETTINGS)
+    update_qwen_settings(QWEN_SETTINGS)
     update_marketplace(HOME_MARKETPLACE)
 
     manifest = {
@@ -286,12 +312,15 @@ def main() -> int:
         "workspace": str(WORKSPACE),
         "plugin_source": str(PLUGIN_SRC),
         "extension_source": str(EXTENSION_SRC),
+        "qwen_extension_source": str(QWEN_EXTENSION_SRC),
         "home_plugin_dir": str(HOME_PLUGIN_DIR),
         "home_plugin_cache_dir": str(HOME_PLUGIN_CACHE_DIR),
         "gemini_extension_dir": str(GEMINI_EXTENSION_DIR),
+        "qwen_extension_dir": str(QWEN_EXTENSION_DIR),
         "codex_config": str(CODEX_CONFIG),
         "codex_hooks": str(CODEX_HOOKS),
         "gemini_settings": str(GEMINI_SETTINGS),
+        "qwen_settings": str(QWEN_SETTINGS),
         "home_marketplace": str(HOME_MARKETPLACE),
         "backups": metadata,
     }

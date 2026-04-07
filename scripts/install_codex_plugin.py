@@ -101,7 +101,6 @@ def write_codex_hooks(path: Path) -> None:
                         {
                             "type": "command",
                             "command": f'/usr/bin/python3 "{script_path}"',
-                            "statusMessage": "CLI Notice approval reminder",
                             "timeout": 5,
                         }
                     ],
@@ -113,7 +112,6 @@ def write_codex_hooks(path: Path) -> None:
                         {
                             "type": "command",
                             "command": f'/usr/bin/python3 "{script_path}"',
-                            "statusMessage": "CLI Notice completion reminder",
                             "timeout": 5,
                         }
                     ],

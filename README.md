@@ -1,20 +1,21 @@
 # CLI Notice
 
-`CLI Notice` adds native macOS voice reminders to Codex CLI and Gemini CLI.
+`CLI Notice` adds native macOS voice reminders to Codex CLI, Gemini CLI, and Qwen Code.
 It helps you notice the moments that matter most while working in the terminal:
 
 - when a CLI is likely waiting for your confirmation
 - when a task has finished and the result is ready to review
 
-The package is published as `@xinsd/cli-notice` and installs both integrations
+The package is published as `@xinsd/cli-notice` and installs all integrations
 through a single npm-driven workflow.
 
 ## Highlights
 
 - Native voice reminders for Codex CLI
 - Native voice reminders for Gemini CLI
-- Install both integrations with one command
-- Install only Codex or only Gemini if needed
+- Native voice reminders for Qwen Code
+- Install all integrations with one command
+- Install only Codex, Gemini, or Qwen if needed
 - Backup and rollback built into the installer
 - Runtime on/off switch with `CLI_NOTICE_ENABLED=true|false`
 - macOS-first implementation using the system `say` command
@@ -27,7 +28,7 @@ Install the package:
 npm i @xinsd/cli-notice
 ```
 
-Install both integrations:
+Install all integrations:
 
 ```bash
 npx cli-notice all
@@ -41,6 +42,10 @@ npx cli-notice codex
 
 ```bash
 npx cli-notice gemini
+```
+
+```bash
+npx cli-notice qwen
 ```
 
 ## What Gets Installed
@@ -59,6 +64,11 @@ For Gemini:
 - links the Gemini integration into `~/.gemini/extensions/cli-notice-gemini`
 - enables notifications in `~/.gemini/settings.json`
 
+For Qwen:
+
+- links the Qwen integration into `~/.qwen/extensions/cli-notice-qwen`
+- ensures `~/.qwen/settings.json` does not disable hooks globally
+
 Each installer creates a timestamped backup and rollback script before changing
 your local environment.
 
@@ -74,6 +84,10 @@ codex
 
 ```bash
 gemini
+```
+
+```bash
+qwen
 ```
 
 The reminders are automatic once the integration is installed.
@@ -92,9 +106,14 @@ CLI_NOTICE_ENABLED=true gemini ...
 CLI_NOTICE_ENABLED=false gemini ...
 ```
 
+```bash
+CLI_NOTICE_ENABLED=true qwen ...
+CLI_NOTICE_ENABLED=false qwen ...
+```
+
 ## Configuration
 
-Both integrations support the same environment variables:
+All integrations support the same environment variables:
 
 ```bash
 export CLI_NOTICE_ENABLED="true"
@@ -134,18 +153,28 @@ The Gemini integration uses native extension hooks to announce:
 - confirmation notifications when Gemini asks for tool permission
 - completion reminders after the agent finishes a task
 
+### Qwen
+
+The Qwen integration uses native extension hooks to announce:
+
+- permission reminders via the `PermissionRequest` event right before Qwen
+  shows a confirmation dialog
+- completion reminders via the `Stop` event when the current response finishes
+
 ## Project Layout
 
-The two integrations live side by side under `integrations/`:
+The three integrations live side by side under `integrations/`:
 
 - [integrations/cli-notice-codex](/Users/xinsd/Documents/vibe_coding/cli-notice/integrations/cli-notice-codex)
 - [integrations/cli-notice-gemini](/Users/xinsd/Documents/vibe_coding/cli-notice/integrations/cli-notice-gemini)
+- [integrations/cli-notice-qwen](/Users/xinsd/Documents/vibe_coding/cli-notice/integrations/cli-notice-qwen)
 
 Installers:
 
 - [scripts/install_real_env.py](/Users/xinsd/Documents/vibe_coding/cli-notice/scripts/install_real_env.py)
 - [scripts/install_codex_plugin.py](/Users/xinsd/Documents/vibe_coding/cli-notice/scripts/install_codex_plugin.py)
 - [scripts/install_gemini_extension.py](/Users/xinsd/Documents/vibe_coding/cli-notice/scripts/install_gemini_extension.py)
+- [scripts/install_qwen_extension.py](/Users/xinsd/Documents/vibe_coding/cli-notice/scripts/install_qwen_extension.py)
 
 CLI entry:
 
@@ -159,6 +188,8 @@ Integration-specific documentation:
   [integrations/cli-notice-codex/README.md](/Users/xinsd/Documents/vibe_coding/cli-notice/integrations/cli-notice-codex/README.md)
 - Gemini:
   [integrations/cli-notice-gemini/README.md](/Users/xinsd/Documents/vibe_coding/cli-notice/integrations/cli-notice-gemini/README.md)
+- Qwen:
+  [integrations/cli-notice-qwen/README.md](/Users/xinsd/Documents/vibe_coding/cli-notice/integrations/cli-notice-qwen/README.md)
 
 Release history:
 
@@ -181,6 +212,10 @@ python3 scripts/install_codex_plugin.py
 python3 scripts/install_gemini_extension.py
 ```
 
+```bash
+python3 scripts/install_qwen_extension.py
+```
+
 You can also verify the npm package shape locally with:
 
 ```bash
@@ -193,6 +228,8 @@ npm pack --dry-run
 - speech playback failures are fail-open and do not block the CLI session
 - Codex approval reminders are intentionally conservative to reduce false
   positives during normal workspace-local file operations
+- Qwen approval reminders use the native `PermissionRequest` hook available in
+  Qwen Code 0.14.0
 
 ## License
 
